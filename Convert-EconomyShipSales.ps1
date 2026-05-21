@@ -7,20 +7,21 @@ param (
 )
 
 $ColorPreset = @{
-    Gray = '<ColorMaskHSV x="0" y="-0.3" z="0.275" />';
-    Red = '<ColorMaskHSV x="0" y="0.1" z="0.3" />';
-    Green = '<ColorMaskHSV x="0.333" y="-0.14" z="0.15" />';
-    Blue = '<ColorMaskHSV x="0.575" y="0.1" z="0.275" />';
-    Yellow = '<ColorMaskHSV x="0.122" y="0.05" z="0.405" />';
-    DarkWhite = '<ColorMaskHSV x="0" y="-0.3" z="0.475" />';
-    Black = '<ColorMaskHSV x="0" y="-0.3" z="0.05" />';
-    LightGray = '<ColorMaskHSV x="0" y="-0.3" z="0.375" />';
-    LightRed = '<ColorMaskHSV x="0" y="0.175" z="0.4" />';
-    LightGreen = '<ColorMaskHSV x="0.333" y="-0.065" z="0.25" />';
-    LightBlue = '<ColorMaskHSV x="0.575" y="0.175" z="0.375" />';
-    LightYellow = '<ColorMaskHSV x="0.122" y="0.125" z="0.505" />'
-    White = '<ColorMaskHSV x="0" y="-0.3" z="0.55" />';
-    LightBlack = '<ColorMaskHSV x="0" y="-0.3" z="0.125" />';
+    Gray = '<ColorMaskHSV x="0" y="-0.8" z="0" />';
+    Red = '<ColorMaskHSV x="0" y="0" z="0.05" />';
+    Green = '<ColorMaskHSV x="0.333333343" y="-0.48" z="-0.25" />';
+    Blue = '<ColorMaskHSV x="0.575" y="0" z="0" />';
+    Yellow = '<ColorMaskHSV x="0.122222222" y="-0.1" z="0.26" />';
+    DarkWhite = '<ColorMaskHSV x="0" y="-0.8" z="0.4" />';
+    Black = '<ColorMaskHSV x="0" y="-0.8" z="-0.45" />';
+    LightGray = '<ColorMaskHSV x="0" y="-0.8" z="0.2" />';
+    LightRed = '<ColorMaskHSV x="0" y="0.15" z="0.25" />';
+    LightGreen = '<ColorMaskHSV x="0.333333343" y="-0.33" z="-0.05" />';
+    LightBlue = '<ColorMaskHSV x="0.575" y="0.15" z="0.2" />';
+    LightYellow = '<ColorMaskHSV x="0.122222222" y="0.05" z="0.46" />'
+    White = '<ColorMaskHSV x="0" y="-0.8" z="0.55" />';
+    LightBlack = '<ColorMaskHSV x="0" y="-0.8" z="-0.3" />';
+    Test_Brown = '<ColorMaskHSV x="0.122222222" y="-0.1" z="0.26" />';
     Cyan = '<ColorMaskHSV x="0.5" y="0.1" z="0.275" />';
     Magenta = '<ColorMaskHSV x="0.833" y="0.1" z="0.3" />';
     LightCyan = '<ColorMaskHSV x="0.5" y="0.175" z="0.375" />';
