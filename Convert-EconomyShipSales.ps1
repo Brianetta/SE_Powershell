@@ -1,7 +1,7 @@
 param (
     [Parameter(ParameterSetName='Preset')][string]$BlueprintFolder,
     [Parameter(ParameterSetName='Preset')][ValidateSet('Gray','Red','Green','Blue','Yellow','DarkWhite','Black',
-                'LightGray','LightRed','LightGreen','LightBlue','LightYellow','White','LightBlack',
+                'LightGray','LightRed','LightGreen','LightBlue','LightYellow','White','LightBlack','Brown',
                 'Cyan','Magenta','LightCyan','LightMagenta','InternationalOrange')][string]$Color,
     [Parameter(ParameterSetName='Preset')][Alias('Ships')][string[]]$Ship
 )
