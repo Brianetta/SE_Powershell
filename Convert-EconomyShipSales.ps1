@@ -62,37 +62,40 @@ if ($null -eq $Ship) {
 if($null -eq $Color -or $Color.Length -eq 0) {
     $Color = $ColorPreset.Keys | Out-GridView -Title 'Please select your desired color' -PassThru | Select-Object -First 1
 }
+if($null -eq $Color -or $Color.Length -eq 0) {
+    Write-Error "No color selected; aborting."
+} else {
+    if ($null -eq $BlueprintFolder -or $BlueprintFolder.Length -eq 0) {$BlueprintFolder = "Economy - $Color"}
+    $Blueprints = "$($env:APPDATA)\SpaceEngineers\Blueprints\local\$BlueprintFolder"
 
-if ($null -eq $BlueprintFolder -or $BlueprintFolder.Length -eq 0) {$BlueprintFolder = "Economy - $Color"}
-$Blueprints = "$($env:APPDATA)\SpaceEngineers\Blueprints\local\$BlueprintFolder"
+    $DefaultColor = '<ColorMaskHSV x="1" y="0.2" z="0.55" />'
 
-$DefaultColor = '<ColorMaskHSV x="1" y="0.2" z="0.55" />'
+    if(!(Test-Path $Blueprints)) {New-Item -ItemType Directory $Blueprints}
 
-if(!(Test-Path $Blueprints)) {New-Item -ItemType Directory $Blueprints}
-
-foreach ($Prefab in $EconomyPrefabs) {
-    if($Ship -contains $Prefab.BaseName) {
-        $Content = Get-Content -Path $Prefab.FullName |
-            ForEach-Object {
-                $_ `
-                -replace '<Prefab','<ShipBlueprint' `
-                -replace '</Prefab','</ShipBlueprint' `
-                -replace 'MyObjectBuilder_PrefabDefinition','MyObjectBuilder_ShipBlueprintDefinition' `
-                -replace $DefaultColor,$ColorPreset[$Color]
+    foreach ($Prefab in $EconomyPrefabs) {
+        if($Ship -contains $Prefab.BaseName) {
+            $Content = Get-Content -Path $Prefab.FullName |
+                ForEach-Object {
+                    $_ `
+                    -replace '<Prefab','<ShipBlueprint' `
+                    -replace '</Prefab','</ShipBlueprint' `
+                    -replace 'MyObjectBuilder_PrefabDefinition','MyObjectBuilder_ShipBlueprintDefinition' `
+                    -replace $DefaultColor,$ColorPreset[$Color]
+                }
+            $xml = [xml]$Content
+            $Displayname = $xml.Definitions.ShipBlueprints.ShipBlueprint.DisplayName
+            $Thumbnail = Join-Path $SpaceEngineers $xml.Definitions.ShipBlueprints.ShipBlueprint.TooltipImage
+            if($Prefab.BaseName -match 'Pirate') {
+                $Displayname += ' (Pirate)'
             }
-        $xml = [xml]$Content
-        $Displayname = $xml.Definitions.ShipBlueprints.ShipBlueprint.DisplayName
-        $Thumbnail = Join-Path $SpaceEngineers $xml.Definitions.ShipBlueprints.ShipBlueprint.TooltipImage
-        if($Prefab.BaseName -match 'Pirate') {
-            $Displayname += ' (Pirate)'
-        }
-        $Blueprint = Join-Path $Blueprints $Displayname
-        if (Test-Path $Blueprint) {
-            Write-Warning "$Displayname already exists"
-        } else {
-            New-Item -ItemType Directory $Blueprint
-            Set-Content -Path (Join-Path $Blueprint 'bp.sbc') -Value $Content
-            Copy-Item $Thumbnail (Join-Path $Blueprint 'thumb.png')
+            $Blueprint = Join-Path $Blueprints $Displayname
+            if (Test-Path $Blueprint) {
+                Write-Warning "$Displayname already exists"
+            } else {
+                New-Item -ItemType Directory $Blueprint
+                Set-Content -Path (Join-Path $Blueprint 'bp.sbc') -Value $Content
+                Copy-Item $Thumbnail (Join-Path $Blueprint 'thumb.png')
+            }
         }
     }
 }
