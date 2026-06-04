@@ -21,7 +21,7 @@ $ColorPreset = @{
     LightYellow = '<ColorMaskHSV x="0.122222222" y="0.05" z="0.46" />'
     White = '<ColorMaskHSV x="0" y="-0.8" z="0.55" />';
     LightBlack = '<ColorMaskHSV x="0" y="-0.8" z="-0.3" />';
-    Test_Brown = '<ColorMaskHSV x="0.122222222" y="-0.1" z="0.26" />';
+    Brown = '<ColorMaskHSV x="0.09166667" y="0" z="0.25" />';
     Cyan = '<ColorMaskHSV x="0.5" y="0.1" z="0.275" />';
     Magenta = '<ColorMaskHSV x="0.833" y="0.1" z="0.3" />';
     LightCyan = '<ColorMaskHSV x="0.5" y="0.175" z="0.375" />';
