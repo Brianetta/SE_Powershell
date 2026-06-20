@@ -57,7 +57,14 @@ foreach($Blueprint in $Blueprints[$selected.ID]){
         if($block.SelectedBlocks) {
             $BlockReferences[$block_key] = $Blocks |
             Where-Object {$null -ne $_.EntityId -and $_.EntityId -In $block.SelectedBlocks.long} |
-                Select-Object -Property @{Name='Referenced Block';Expr={$BlockNames[$_.Type,$_.SubtypeName -join '/']}},CustomName
+                Select-Object -Property @{
+                        Name='Name';
+                        Expr={if($_.CustomName){$_.CustomName} else {$BlockNames[$_.Type,$_.SubtypeName -join '/']}}
+                    },
+                    @{
+                        Name='Referenced Block';
+                        Expr={$BlockNames[$_.Type,$_.SubtypeName -join '/']}
+                    }
         }
         if($block.Toolbar.Slots) {
             $ToolbarActions[$block_key] = $block.Toolbar.Slots.Slot |
@@ -68,10 +75,18 @@ foreach($Blueprint in $Blueprints[$selected.ID]){
                     GroupName,
                     @{Name='Name';Expr={
                         if($null -eq $_.GroupName) {
-                            if($null -eq $_.BlockEntityId.GroupName) {
-                                $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId | Select-Object -ExpandProperty CustomName
+                            $b = $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId;
+                            if($null -eq $b.CustomName) {
+                                $BlockNames[$b.Type,$b.SubtypeName -join '/']
                             } else {
-                                $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId | Select-Object -ExpandProperty Name
+                                $b.CustomName
+                            }
+                        } else {$null}
+                        if($null -eq $_.GroupName) {
+                            if($null -eq $_.CustomName) {
+                                $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId | Select-Object -ExpandProperty @{Name='Referencing Block';Expr={$BlockNames[$_.Type,$_.SubtypeName -join '/']}}
+                            } else {
+                                $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId | Select-Object -ExpandProperty CustomName
                             }
                         } else {$null}
                     }},                    
@@ -96,14 +111,30 @@ foreach($Blueprint in $Blueprints[$selected.ID]){
                     Index,
                     Action,
                     GroupName,
-                    @{Name='BlockName';Expr={
+                    @{Name='Name';Expr={
                         if($null -eq $_.GroupName) {
-                            $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId | Select-Object -ExpandProperty CustomName
+                            $b = $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId;
+                            if($null -eq $b.CustomName) {
+                                $BlockNames[$b.Type,$b.SubtypeName -join '/']
+                            } else {
+                                $b.CustomName
+                            }
                         } else {$null}
-                    }},
-                    @{Name='Block';Expr={
                         if($null -eq $_.GroupName) {
-                            $b = $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId; $BlockNames[$b.Type,$b.SubtypeName -join '/']
+                            if($null -eq $_.CustomName) {
+                                $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId | Select-Object -ExpandProperty @{Name='Referencing Block';Expr={$BlockNames[$_.Type,$_.SubtypeName -join '/']}}
+                            } else {
+                                $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId | Select-Object -ExpandProperty CustomName
+                            }
+                        } else {$null}
+                    }},                    
+                    @{Name='Block';Expr={                        
+                        if($null -eq $_.GroupName) {
+                            if($null -eq $_.Action) {
+                                $_.DefinitionId | Select-Object -ExpandProperty SubType
+                            } else {
+                                $b = $blocks | Where-Object -Property EntityId -eq $_.BlockEntityId; $BlockNames[$b.Type,$b.SubtypeName -join '/']
+                            }
                         } else {$null}
                     }},
                     @{Name='Parameters';Expr={
@@ -120,7 +151,7 @@ foreach($Blueprint in $Blueprints[$selected.ID]){
                             Where-Object -Property UniqueSelectionId -eq $block.SelectedEvent | 
                             Select-Object -ExpandProperty Id |
                             Select-Object -ExpandProperty TypeId
-                        )]
+                        ) -replace 'EventCargoFilledEntityComponent','CargoFilledEntityComponent'] # Get your act together, Keen...
                     }},
                     ANDGate,
                     Threshold
