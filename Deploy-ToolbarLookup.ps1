@@ -138,7 +138,7 @@ foreach($Blueprint in $Blueprints[$selected.ID]){
 </head>
 <body>
 <h1>{1}</h1><i>{2}</i>
-'@ -f $ShipName,$ShipName,$Blueprint
+'@ -f $ShipName,$ShipName,$Blueprint.FullName
     if(Test-Path ($Thumbnail)) {
         $html[$ShipName] += "<br /><img src=""$ShipName.png"" alt=""Thumbnail image of $Shipname from blueprint"" />"
     }
