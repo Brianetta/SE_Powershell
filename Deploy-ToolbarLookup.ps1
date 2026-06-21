@@ -151,7 +151,10 @@ foreach($Blueprint in $Blueprints[$selected.ID]){
                             Where-Object -Property UniqueSelectionId -eq $block.SelectedEvent | 
                             Select-Object -ExpandProperty Id |
                             Select-Object -ExpandProperty TypeId
-                        ) -replace 'EventCargoFilledEntityComponent','CargoFilledEntityComponent'] # Get your act together, Keen...
+                        ) `
+                        -replace 'EventCargoFilledEntityComponent','CargoFilledEntityComponent' `
+                        -replace 'EventBlockOnOff','MyEventBlockOnOff' `
+                        ] # Get your act together, Keen...
                     }},
                     ANDGate,
                     Threshold
