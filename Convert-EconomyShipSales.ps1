@@ -3,7 +3,8 @@ param (
     [Parameter(ParameterSetName='Preset')][ValidateSet('Gray','Red','Green','Blue','Yellow','DarkWhite','Black',
                 'LightGray','LightRed','LightGreen','LightBlue','LightYellow','White','LightBlack','Brown',
                 'Cyan','Magenta','LightCyan','LightMagenta','InternationalOrange')][string]$Color,
-    [Parameter(ParameterSetName='Preset')][Alias('Ships')][string[]]$Ship
+    [Parameter(ParameterSetName='Preset')][Alias('Ships')][string[]]$Ship,
+    [Parameter(ParameterSetName='Preset')][switch]$Legacy
 )
 
 $ColorPreset = @{
@@ -31,7 +32,11 @@ $ColorPreset = @{
 
 $SteamPath = Get-ItemProperty HKCU:\Software\Valve\Steam | Select-Object -ExpandProperty SteamPath
 $SpaceEngineers = Join-Path $SteamPath "steamapps\common\SpaceEngineers\Content"
-$PrefabLocation = Join-Path $SpaceEngineers "Data\Prefabs\Economy\Sales\*.sbc"
+if($Legacy) {
+    $PrefabLocation = Join-Path $SpaceEngineers "Data\Prefabs\LegacyContent\Economy\Sales\*.sbc"
+} else {
+    $PrefabLocation = Join-Path $SpaceEngineers "Data\Prefabs\Economy\Sales\*.sbc"
+}
 
 $EconomyPrefabs = Get-ChildItem $PrefabLocation
 
