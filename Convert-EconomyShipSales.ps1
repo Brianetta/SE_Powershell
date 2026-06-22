@@ -38,14 +38,7 @@ $EconomyPrefabs = Get-ChildItem $PrefabLocation
 if ($null -eq $Ship) {
     $Ship = @(
         foreach ($Prefab in $EconomyPrefabs) {
-            $Content = Get-Content -Path $Prefab.FullName |
-                ForEach-Object {
-                    $_ `
-                    -replace '<Prefab','<ShipBlueprint' `
-                    -replace '</Prefab','</ShipBlueprint' `
-                    -replace 'MyObjectBuilder_PrefabDefinition','MyObjectBuilder_ShipBlueprintDefinition' `
-                    -replace $DefaultColor,$ColorPreset[$Color]
-                }
+            $Content = Get-Content -Path $Prefab.FullName
             $xml = [xml]$Content
             $Displayname = $xml.Definitions.ShipBlueprints.ShipBlueprint.DisplayName
             if($Prefab.BaseName -match 'Pirate') {
