@@ -70,7 +70,11 @@ if($null -eq $Color -or $Color.Length -eq 0) {
     Write-Error "No color selected; aborting."
 } else {
     if ($null -eq $BlueprintFolder -or $BlueprintFolder.Length -eq 0) {$BlueprintFolder = "Economy - $Color"}
-    $Blueprints = "$($env:APPDATA)\SpaceEngineers\Blueprints\local\$BlueprintFolder"
+    if($IsLinux) {
+        $BluePrints = "$SpaceEngineers/steamapps/compatdata/244850/pfx/drive_c/users/steamuser/AppData/SpaceEngineers/Blueprints/local"
+    }else {
+        $Blueprints = "$($env:APPDATA)\SpaceEngineers\Blueprints\local\$BlueprintFolder"
+    }
 
     $DefaultColor = '<ColorMaskHSV x="1" y="0.2" z="0.55" />'
 
