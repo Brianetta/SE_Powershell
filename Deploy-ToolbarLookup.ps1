@@ -212,7 +212,6 @@ $index = @'
 Push-Location $OutputFolder
 foreach($file in Get-ChildItem *\*.html) {
     $rfile = Get-Item $file | Resolve-Path -Relative
-    $rfolder = Get-Item $file | Select-Object -ExpandProperty Directory | Resolve-Path -Relative
     $index += "<li><a href=""$rfile"">$($file.BaseName)</li>"
 }
 
