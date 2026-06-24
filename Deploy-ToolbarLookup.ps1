@@ -7,9 +7,13 @@ if ($null -eq $OutputFolder -or $OutputFolder.Length -eq 0) {
     Write-Warning "Using default folder: $OutputFolder"
 }
 
-$SteamPath = Get-ItemProperty HKCU:\Software\Valve\Steam | Select-Object -ExpandProperty SteamPath
+if(Test-Path HKCU:\Software\Valve\Steam) {
+    # Windows!
+    $SteamPath = Get-ItemProperty HKCU:\Software\Valve\Steam | Select-Object -ExpandProperty SteamPath
+} elseif ($IsLinux) {
+    $SteamPath = @(foreach ($package in 'steam','steambeta') {Join-Path $($env:HOME) -ChildPath '.steam',$package }) | Get-Item | Select-Object -First 1 -ExpandProperty LinkTarget
+}
 $SpaceEngineers = Join-Path $SteamPath "steamapps\common\SpaceEngineers\Content"
-
 $Localization = @{}
 Select-Xml -Path (Join-Path $SpaceEngineers "data\Localization\MyTexts.resx") -XPath "root/data" | Select-Object -ExpandProperty Node | ForEach-Object {$Localization[$_.name] = $_.value}
 
@@ -24,19 +28,34 @@ foreach ($sbc in (Join-Path $SpaceEngineers 'data\CubeBlocks\Cube*' | Get-ChildI
 [xml]$EntityComponents = Get-Content  (Join-Path $SpaceEngineers 'data\EntityComponents.sbc')
 $ECEvent = $EntityComponents.Definitions.EntityComponents.EntityComponent | Where-Object -Property type -like 'MyObjectBuilder_Event*'
 
-$BlueprintBase = "$($env:APPDATA)\SpaceEngineers\Blueprints"
+if($IsLinux) {
+    $BluePrintBase = "$SpaceEngineers/steamapps/compatdata/244850/pfx/drive_c/users/steamuser/AppData/SpaceEngineers/Blueprints"
+}else {
+    $BlueprintBase = "$($env:APPDATA)\SpaceEngineers\Blueprints"
+}
 
 $Blueprints = Get-ChildItem $BlueprintBase -Recurse 'bp.sbc'
 
 $i=0
-$selected = @(foreach ($Blueprint in $Blueprints) {
-    $Blueprint |
-        Select-Object `
-            @{Name="ID";Expr={$i}}, `
-            @{Name='Folder';Expr={Split-Path $_.FullName -Parent | Split-Path -Parent | Split-Path -Leaf}}, `
-            @{Name='Name';Expr={$_.Directory | Split-Path -Leaf}}
-    ++$i
-}) | Out-GridView -Title "Select blueprint(s)" -PassThru
+if($IsLinux) {
+    $selected = @(foreach ($Blueprint in $Blueprints) {
+        $Blueprint |
+            Select-Object `
+                @{Name="ID";Expr={$i}}, `
+                @{Name='Folder';Expr={Split-Path $_.FullName -Parent | Split-Path -Parent | Split-Path -Leaf}}, `
+                @{Name='Name';Expr={$_.Directory | Split-Path -Leaf}}
+        ++$i
+    }) | Out-ConsoleGridView -Title "Use space to select blueprint(s)"
+} else {
+    $selected = @(foreach ($Blueprint in $Blueprints) {
+        $Blueprint |
+            Select-Object `
+                @{Name="ID";Expr={$i}}, `
+                @{Name='Folder';Expr={Split-Path $_.FullName -Parent | Split-Path -Parent | Split-Path -Leaf}}, `
+                @{Name='Name';Expr={$_.Directory | Split-Path -Leaf}}
+        ++$i
+    }) | Out-GridView -Title "Select blueprint(s)" -PassThru
+}
 
 $html=@{}
 if($selected.Count -eq 0) {break};
@@ -212,7 +231,6 @@ $index = @'
 Push-Location $OutputFolder
 foreach($file in Get-ChildItem *\*.html) {
     $rfile = Get-Item $file | Resolve-Path -Relative
-    $rfolder = Get-Item $file | Select-Object -ExpandProperty Directory | Resolve-Path -Relative
     $index += "<li><a href=""$rfile"">$($file.BaseName)</li>"
 }
 
