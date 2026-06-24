@@ -51,14 +51,14 @@ if ($null -eq $Ship) {
         foreach ($Prefab in $EconomyPrefabs) {
             $Content = Get-Content -Path $Prefab.FullName
             $xml = [xml]$Content
-            $Displayname = $xml.Definitions.ShipBlueprints.ShipBlueprint.DisplayName
+            $Displayname = $xml.Definitions.Prefabs.Prefab.DisplayName
             if($Prefab.BaseName -match 'Pirate') {
                 $Displayname += ' (Pirate)'
             }
             $true | Select-Object `
                 @{Name='Blueprint';Expr={$Prefab.BaseName}},
                 @{Name='DisplayName';Expr={$Displayname}},
-                @{Name='Description';Expr={$xml.Definitions.ShipBlueprints.ShipBlueprint.Description}}
+                @{Name='Description';Expr={$xml.Definitions.Prefabs.Prefab.Description}}
         }
     ) | Out-GridView -Title 'Please select your desired blueprint(s)' -PassThru | Select-Object -ExpandProperty Blueprint
 }
