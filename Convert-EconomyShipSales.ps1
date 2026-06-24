@@ -44,6 +44,14 @@ if($Legacy) {
     $PrefabLocation = Join-Path $SpaceEngineers "Data\Prefabs\Economy\Sales\*.sbc"
 }
 
+function Select-Color() {
+    if($IsLinux){
+        $ColorPreset.Keys | Out-ConsoleGridView -Title 'Please use space bar to select your desired color' | Select-Object -First 1
+    } else {
+        $ColorPreset.Keys | Out-Gridview -Title 'Please select your desired color' -PassThru | Select-Object -First 1
+    }
+}
+
 $EconomyPrefabs = Get-ChildItem $PrefabLocation
 
 if ($null -eq $Ship) {
@@ -64,7 +72,7 @@ if ($null -eq $Ship) {
 }
 
 if($null -eq $Color -or $Color.Length -eq 0) {
-    $Color = $ColorPreset.Keys | Out-GridView -Title 'Please select your desired color' -PassThru | Select-Object -First 1
+    $Color = Select-Color
 }
 if($null -eq $Color -or $Color.Length -eq 0) {
     Write-Error "No color selected; aborting."
