@@ -55,20 +55,37 @@ function Select-Color() {
 $EconomyPrefabs = Get-ChildItem $PrefabLocation
 
 if ($null -eq $Ship) {
-    $Ship = @(
-        foreach ($Prefab in $EconomyPrefabs) {
-            $Content = Get-Content -Path $Prefab.FullName
-            $xml = [xml]$Content
-            $Displayname = $xml.Definitions.Prefabs.Prefab.DisplayName
-            if($Prefab.BaseName -match 'Pirate') {
-                $Displayname += ' (Pirate)'
+    if($IsLinux) {
+        $Ship = @(
+            foreach ($Prefab in $EconomyPrefabs) {
+                $Content = Get-Content -Path $Prefab.FullName
+                $xml = [xml]$Content
+                $Displayname = $xml.Definitions.Prefabs.Prefab.DisplayName
+                if($Prefab.BaseName -match 'Pirate') {
+                    $Displayname += ' (Pirate)'
+                }
+                $true | Select-Object `
+                    @{Name='Blueprint';Expr={$Prefab.BaseName}},
+                    @{Name='DisplayName';Expr={$Displayname}},
+                    @{Name='Description';Expr={$xml.Definitions.Prefabs.Prefab.Description}}
             }
-            $true | Select-Object `
-                @{Name='Blueprint';Expr={$Prefab.BaseName}},
-                @{Name='DisplayName';Expr={$Displayname}},
-                @{Name='Description';Expr={$xml.Definitions.Prefabs.Prefab.Description}}
-        }
-    ) | Out-GridView -Title 'Please select your desired blueprint(s)' -PassThru | Select-Object -ExpandProperty Blueprint
+        ) | Out-ConsoleGridView -Title 'Please use space bar to select your desired blueprint(s)' | Select-Object -ExpandProperty Blueprint
+    } else {
+        $Ship = @(
+            foreach ($Prefab in $EconomyPrefabs) {
+                $Content = Get-Content -Path $Prefab.FullName
+                $xml = [xml]$Content
+                $Displayname = $xml.Definitions.Prefabs.Prefab.DisplayName
+                if($Prefab.BaseName -match 'Pirate') {
+                    $Displayname += ' (Pirate)'
+                }
+                $true | Select-Object `
+                    @{Name='Blueprint';Expr={$Prefab.BaseName}},
+                    @{Name='DisplayName';Expr={$Displayname}},
+                    @{Name='Description';Expr={$xml.Definitions.Prefabs.Prefab.Description}}
+            }
+        ) | Out-Gridview -Title 'Please select your desired blueprint(s)' -PassThru | Select-Object -ExpandProperty Blueprint
+    }
 }
 
 if($null -eq $Color -or $Color.Length -eq 0) {
