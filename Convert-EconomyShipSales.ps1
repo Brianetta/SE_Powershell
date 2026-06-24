@@ -30,8 +30,14 @@ $ColorPreset = @{
     InternationalOrange = '<ColorMaskHSV x="0.052" y="0.2" z="0.55" />'
 }
 
-$SteamPath = Get-ItemProperty HKCU:\Software\Valve\Steam | Select-Object -ExpandProperty SteamPath
+if(Test-Path HKCU:\Software\Valve\Steam) {
+    # Windows!
+    $SteamPath = Get-ItemProperty HKCU:\Software\Valve\Steam | Select-Object -ExpandProperty SteamPath
+} elseif ($IsLinux) {
+    $SteamPath = @(foreach ($package in 'steam','steambeta') {Join-Path $($env:HOME) -ChildPath '.steam',$package }) | Get-Item | Select-Object -First 1 -ExpandProperty LinkTarget
+}
 $SpaceEngineers = Join-Path $SteamPath "steamapps\common\SpaceEngineers\Content"
+
 if($Legacy) {
     $PrefabLocation = Join-Path $SpaceEngineers "Data\Prefabs\LegacyContent\Economy\Sales\*.sbc"
 } else {
