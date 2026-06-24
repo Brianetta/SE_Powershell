@@ -79,7 +79,7 @@ if($null -eq $Color -or $Color.Length -eq 0) {
 } else {
     if ($null -eq $BlueprintFolder -or $BlueprintFolder.Length -eq 0) {$BlueprintFolder = "Economy - $Color"}
     if($IsLinux) {
-        $BluePrints = "$SpaceEngineers/steamapps/compatdata/244850/pfx/drive_c/users/steamuser/AppData/SpaceEngineers/Blueprints/local"
+        $BluePrints = "$SpaceEngineers/steamapps/compatdata/244850/pfx/drive_c/users/steamuser/AppData/SpaceEngineers/Blueprints/local/$BlueprintFolder"
     }else {
         $Blueprints = "$($env:APPDATA)\SpaceEngineers\Blueprints\local\$BlueprintFolder"
     }
