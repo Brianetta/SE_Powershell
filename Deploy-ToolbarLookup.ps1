@@ -3,43 +3,67 @@ param (
 )
 
 if ($null -eq $OutputFolder -or $OutputFolder.Length -eq 0) {
-    $OutputFolder = Join-Path $env:USERPROFILE -ChildPath "SE Blueprint References"
+    $OutputFolder = Join-Path $home -ChildPath "SE Blueprint References"
     Write-Warning "Using default folder: $OutputFolder"
 }
 
-$SteamPath = Get-ItemProperty HKCU:\Software\Valve\Steam | Select-Object -ExpandProperty SteamPath
+if(Test-Path HKCU:\Software\Valve\Steam) {
+    # Windows!
+    $SteamPath = Get-ItemProperty HKCU:\Software\Valve\Steam | Select-Object -ExpandProperty SteamPath
+} elseif ($IsLinux) {
+    $SteamPath = @(foreach ($package in 'steam','steambeta') {Join-Path $($env:HOME) -ChildPath '.steam',$package }) | Get-Item | Select-Object -First 1 -ExpandProperty LinkTarget
+}
 $SpaceEngineers = Join-Path $SteamPath "steamapps\common\SpaceEngineers\Content"
-
 $Localization = @{}
-Select-Xml -Path (Join-Path $SpaceEngineers "data\Localization\MyTexts.resx") -XPath "root/data" | Select-Object -ExpandProperty Node | ForEach-Object {$Localization[$_.name] = $_.value}
+Select-Xml -Path (Join-Path $SpaceEngineers "Data\Localization\MyTexts.resx") -XPath "root/data" | Select-Object -ExpandProperty Node | ForEach-Object {$Localization[$_.name] = $_.value}
 
 $BlockNames=@{}
-foreach ($sbc in (Join-Path $SpaceEngineers 'data\CubeBlocks\Cube*' | Get-ChildItem)) {
+foreach ($sbc in (Join-Path $SpaceEngineers 'Data\CubeBlocks\Cube*' | Get-ChildItem)) {
     [xml]$cubeblocks = Get-Content $sbc.FullName
     foreach($cb in $cubeblocks.Definitions.CubeBlocks.Definition) {
         $BlockNames[("MyObjectBuilder_$($cb.Id.TypeId)/$($cb.Id.SubtypeId)")]=$Localization[$cb.DisplayName]
     }
 }
 
-[xml]$EntityComponents = Get-Content  (Join-Path $SpaceEngineers 'data\EntityComponents.sbc')
+[xml]$EntityComponents = Get-Content  (Join-Path $SpaceEngineers 'Data\EntityComponents.sbc')
 $ECEvent = $EntityComponents.Definitions.EntityComponents.EntityComponent | Where-Object -Property type -like 'MyObjectBuilder_Event*'
 
-$BlueprintBase = "$($env:APPDATA)\SpaceEngineers\Blueprints"
+if($IsLinux) {
+    $BluePrintBase = "$SpaceEngineers/steamapps/compatdata/244850/pfx/drive_c/users/steamuser/AppData/SpaceEngineers/Blueprints"
+}else {
+    $BlueprintBase = "$($env:APPDATA)\SpaceEngineers\Blueprints"
+}
 
 $Blueprints = Get-ChildItem $BlueprintBase -Recurse 'bp.sbc'
 
 $i=0
-$selected = @(foreach ($Blueprint in $Blueprints) {
-    $Blueprint |
-        Select-Object `
-            @{Name="ID";Expr={$i}}, `
-            @{Name='Folder';Expr={Split-Path $_.FullName -Parent | Split-Path -Parent | Split-Path -Leaf}}, `
-            @{Name='Name';Expr={$_.Directory | Split-Path -Leaf}}
-    ++$i
-}) | Out-GridView -Title "Select blueprint(s)" -PassThru
+if($IsLinux) {
+    $selected = @(foreach ($Blueprint in $Blueprints) {
+        $Blueprint |
+            Select-Object `
+                @{Name="ID";Expr={$i}}, `
+                @{Name='Folder';Expr={Split-Path $_.FullName -Parent | Split-Path -Parent | Split-Path -Leaf}}, `
+                @{Name='Name';Expr={$_.Directory | Split-Path -Leaf}}
+        ++$i
+    }) |
+    Sort-Object -Property Folder,Name |
+    Out-ConsoleGridView -Title "Use space to select blueprint(s)"
+} else {
+    $selected = @(foreach ($Blueprint in $Blueprints) {
+        $Blueprint |
+            Select-Object `
+                @{Name="ID";Expr={$i}}, `
+                @{Name='Folder';Expr={Split-Path $_.FullName -Parent | Split-Path -Parent | Split-Path -Leaf}}, `
+                @{Name='Name';Expr={$_.Directory | Split-Path -Leaf}}
+        ++$i
+    }) | Out-GridView -Title "Select blueprint(s)" -PassThru
+}
 
 $html=@{}
 if($selected.Count -eq 0) {break};
+if(!(Test-Path $OutputFolder)) {
+    mkdir $OutputFolder
+}
 foreach($Blueprint in $Blueprints[$selected.ID]){
     [xml]$bp = Get-Content -Encoding UTF8 (Get-Item $Blueprint.FullName)
     $ShipName = (Get-Item $Blueprint.Directory).BaseName
@@ -225,4 +249,8 @@ Invoke-WebRequest 'https://matcha.mizu.sh/matcha.css' -UseBasicParsing -OutFile 
 $location = Join-Path $OutputFolder -ChildPath 'index.html'
 $index | Set-Content ($location)
 Pop-Location
-Invoke-Item $location
+if($IsLinux){
+    xdg-open $location
+} else {
+    Invoke-Item $location
+}
