@@ -21,7 +21,7 @@ match your chosen colour.
 <dd>Specify the name or names (separated by commas) of a ship prefab. It's up to you to spell it correctly; the default is to ask the user to select. In the selection screen, the left-most column is what you'd need to provide here.</dd>
 <dt><tt>-Legacy</tt></dt>
 <dd>Switches the script into legacy mode, for connoisseurs of classic or vintage vehicles (pre-Economy 2 ships).</dd>
-<dl>
+</dl>
 
 
 ## Deploy-ToolbarLookup
@@ -31,3 +31,9 @@ blueprints. Run the script, then select one or more blueprints. HTML files will 
 created in your home folder, and launched in your browser.
 
 Matcha.css will be downloaded from https://matcha.mizu.sh/
+
+**Command-line options**
+<dl>
+<dt><tt>-OutputFolder &lt;string&gt;</tt></dt>
+<dd>Folder in which to save HTML files. Defaults to "SE Blueprint References" in your home folder.</dd>
+</dl>
