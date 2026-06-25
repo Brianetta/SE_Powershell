@@ -3,7 +3,7 @@ param (
 )
 
 if ($null -eq $OutputFolder -or $OutputFolder.Length -eq 0) {
-    $OutputFolder = Join-Path ($env:USERPROFILE ?? $env:HOME) -ChildPath "SE Blueprint References"
+    $OutputFolder = Join-Path $home -ChildPath "SE Blueprint References"
     Write-Warning "Using default folder: $OutputFolder"
 }
 
